@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1f1e22">
+<title>Dagens skolmat – Högoms skola</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#1f1e22;color:#f6f2ed;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{padding:clamp(14px,3vw,28px)}.wrap{max-width:1100px;margin:0 auto}
+.header{display:flex;align-items:center;gap:15px;margin-bottom:20px}.symbol{flex:none;background:#453123;color:#ffa55d;border-radius:16px;width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:28px}
+h1{font-size:clamp(21px,3vw,30px);margin:0 0 4px;font-weight:700}.subtitle{font-size:clamp(13px,1.8vw,16px);color:#b8aea7}.rule{height:1px;background:#3c3837;margin:16px 0 22px}
+.meals{display:grid;grid-template-columns:1fr 1fr;gap:24px}.label{color:#ffa55d;font-size:12px;font-weight:700;letter-spacing:1.3px;margin-bottom:10px}.veg .label{color:#b9b2a9}.dish{font-size:clamp(19px,3vw,30px);line-height:1.32;font-weight:600;overflow-wrap:break-word}.veg .dish{font-size:clamp(17px,2.5vw,25px);font-weight:500}
+.footer{margin-top:25px;color:#918b86;font-size:12px}.footer a{color:#b9aaa0;text-decoration:none}
+@media(max-width:560px){.meals{grid-template-columns:1fr;gap:22px}.header{margin-bottom:10px}.rule{margin:12px 0 18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header"><div class="symbol" aria-hidden="true">🍽</div><div><h1>Dagens skolmat</h1><div class="subtitle" id="date">Högoms skola</div></div></div>
+  <div class="rule"></div>
+  <div id="content"><div class="subtitle">Hämtar dagens matsedel …</div></div>
+  <div class="footer">Källa: <a href="https://meny.mateo.se/sundsvall/673" target="_blank" rel="noopener">Mateo Meny</a> · <span id="updated">Uppdateras automatiskt</span></div>
+</div>
+<script>
+(function(){
+var content=document.getElementById('content'), dateEl=document.getElementById('date');
+function todayISO(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function niceDate(){try{return new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}catch(e){return todayISO()}}
+function text(el,value){el.appendChild(document.createTextNode(value||''))}
+function meal(label,value,klass){var b=document.createElement('div');b.className=klass||'';var l=document.createElement('div');l.className='label';text(l,label);var d=document.createElement('div');d.className='dish';text(d,value);b.appendChild(l);b.appendChild(d);return b}
+function show(data){
+dateEl.textContent='Högoms skola · '+niceDate();
+content.innerHTML='';
+if(data.date!==todayISO()){text(content,'Matsedeln för idag har ännu inte uppdaterats.');return}
+if(!data.dishes||!data.dishes.length){text(content,'Ingen skolmat publicerad för idag.');return}
+var m=document.createElement('div');m.className='meals';
+m.appendChild(meal('DAGENS RÄTT',data.dishes[0]));
+if(data.dishes.length>1)m.appendChild(meal('ALTERNATIV / VEGETARISKT',data.dishes.slice(1).join(' · '),'veg'));
+content.appendChild(m);
+if(data.updated_at)document.getElementById('updated').textContent='Senast hämtad '+data.updated_at.slice(11,16);
+}
+function load(){var x=new XMLHttpRequest();x.open('GET','skolmat.json?t='+new Date().getTime(),true);x.onreadystatechange=function(){if(x.readyState===4){if(x.status>=200&&x.status<300){try{show(JSON.parse(x.responseText))}catch(e){content.textContent='Kunde inte läsa matsedeln.'}}else{content.textContent='Matsedeln är tillfälligt otillgänglig.'}}};x.send()}
+dateEl.textContent='Högoms skola · '+niceDate();load();setInterval(load,15*60*1000);
+})();
+</script>
+</body></html>
