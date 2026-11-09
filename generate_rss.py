@@ -61,6 +61,7 @@ def main():
         el.text = value
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     ElementTree(rss).write(OUTPUT, encoding="utf-8", xml_declaration=True)
+    Path("docs/skolmat.json").write_text(json.dumps({"date": today.isoformat(), "dishes": dishes, "updated_at": now.isoformat()}, ensure_ascii=False), encoding="utf-8")
     print(f"Updated {OUTPUT} with {len(dishes)} meal(s) for {today}")
 
 if __name__ == "__main__":
