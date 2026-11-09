@@ -42,6 +42,7 @@ def main():
         print(f"No menu published for {today}; publishing a no-menu notice")
     title = "Dagens skolmat – Högoms skola"
     description = " | ".join(dishes) if dishes else "Ingen matsedel publicerad för idag."
+    display_title = "  •  ".join(dishes) if dishes else "Ingen skolmat publicerad idag"
     rss = Element("rss", {"version": "2.0"})
     channel = SubElement(rss, "channel")
     for tag, value in (("title", title), ("link", SCHOOL_URL),
@@ -50,7 +51,7 @@ def main():
                        ("lastBuildDate", format_datetime(now))):
         SubElement(channel, tag).text = value
     item = SubElement(channel, "item")
-    for tag, value in (("title", f"{today.strftime('%Y-%m-%d')}: {description}"),
+    for tag, value in (("title", display_title),
                        ("description", description), ("link", SCHOOL_URL),
                        ("guid", f"hogom-{today.isoformat()}"),
                        ("pubDate", format_datetime(now))):
